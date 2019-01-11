@@ -1,5 +1,5 @@
-kramdown - fast, pure-Ruby Markdown-superset converter
-Copyright (C) 2009-2013 Thomas Leitner <t_leitner@gmx.at>
+kramdown-converter-pdf
+Copyright (C) 2019 Thomas Leitner <t_leitner@gmx.at>
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -19,12 +19,3 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-Some test cases and the benchmark files are based on test cases from
-the MDTest test suite:
-
-    MDTest
-    Copyright (c) 2007 Michel Fortin
-    <http://www.michelf.com/>
-
