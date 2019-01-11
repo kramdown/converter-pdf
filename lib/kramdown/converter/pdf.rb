@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8; frozen_string_literal: true -*-
 #
 #--
 # Copyright (C) 2009-2019 Thomas Leitner <t_leitner@gmx.at>
@@ -64,8 +64,8 @@ module Kramdown
         false
       end
 
-      DISPATCHER_RENDER = Hash.new {|h,k| h[k] = "render_#{k}"} #:nodoc:
-      DISPATCHER_OPTIONS = Hash.new {|h,k| h[k] = "#{k}_options"} #:nodoc:
+      DISPATCHER_RENDER = Hash.new {|h, k| h[k] = "render_#{k}" } #:nodoc:
+      DISPATCHER_OPTIONS = Hash.new {|h, k| h[k] = "#{k}_options" } #:nodoc:
 
       # Invoke the special rendering method for the given element +el+.
       #
@@ -74,7 +74,7 @@ module Kramdown
       def convert(el, opts = {})
         id = el.attr['id']
         id = generate_id(el.options[:raw_text]) if !id && @options[:auto_ids] && el.type == :header
-        if !id.to_s.empty? && !@dests.has_key?(id)
+        if !id.to_s.empty? && !@dests.key?(id)
           @pdf.add_dest(id, @pdf.dest_xyz(0, @pdf.y))
           @dests[id] = @pdf.dest_xyz(0, @pdf.y)
         end
@@ -98,14 +98,12 @@ module Kramdown
         result
       end
 
-
       # ----------------------------
       # :section: Element rendering methods
       # ----------------------------
 
-
-      def root_options(root, opts)
-        {:font => 'Times-Roman', :size => 12, :leading => 2}
+      def root_options(_root, _opts)
+        {font: 'Times-Roman', size: 12, leading: 2}
       end
 
       def render_root(root, opts)
@@ -119,8 +117,8 @@ module Kramdown
       def header_options(el, opts)
         size = opts[:size] * 1.15**(6 - el.options[:level])
         {
-          :font => "Helvetica", :styles => (opts[:styles] || []) + [:bold],
-          :size => size, :bottom_padding => opts[:size], :top_padding => opts[:size]
+          font: "Helvetica", styles: (opts[:styles] || []) + [:bold],
+          size: size, bottom_padding: opts[:size], top_padding: opts[:size]
         }
       end
 
@@ -130,7 +128,7 @@ module Kramdown
 
       def p_options(el, opts)
         bpad = (el.options[:transparent] ? opts[:leading] : opts[:size])
-        {:align => :justify, :bottom_padding => bpad}
+        {align: :justify, bottom_padding: bpad}
       end
 
       def render_p(el, opts)
@@ -149,7 +147,8 @@ module Kramdown
           warning("Rendering an image without a source is not possible#{line ? " (line #{line})" : ''}")
           return nil
         elsif img.attr['src'] !~ /\.jpe?g$|\.png$/
-          warning("Cannot render images other than JPEG or PNG, got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
+          warning("Cannot render images other than JPEG or PNG, " \
+                  "got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
           return nil
         end
 
@@ -157,17 +156,17 @@ module Kramdown
         begin
           img_path = File.join(img_dirs.shift, img.attr['src'])
           image_obj, image_info = @pdf.build_image_object(open(img_path))
-        rescue
+        rescue StandardError
           img_dirs.empty? ? raise : retry
         end
 
-        options = {:position => :center}
+        options = {position: :center}
         if img.attr['height'] && img.attr['height'] =~ /px$/
           options[:height] = img.attr['height'].to_i / (@options[:image_dpi] || 150.0) * 72
         elsif img.attr['width'] && img.attr['width'] =~ /px$/
           options[:width] = img.attr['width'].to_i / (@options[:image_dpi] || 150.0) * 72
         else
-          options[:scale] =[(@pdf.bounds.width - mm2pt(20)) / image_info.width.to_f, 1].min
+          options[:scale] = [(@pdf.bounds.width - mm2pt(20)) / image_info.width.to_f, 1].min
         end
 
         if img.attr['class'] =~ /\bright\b/
@@ -180,16 +179,16 @@ module Kramdown
         end
       end
 
-      def blockquote_options(el, opts)
-        {:styles => [:italic]}
+      def blockquote_options(_el, _opts)
+        {styles: [:italic]}
       end
 
       def render_blockquote(el, opts)
         @pdf.indent(mm2pt(10), mm2pt(10)) { inner(el, opts) }
       end
 
-      def ul_options(el, opts)
-        {:bottom_padding => opts[:size]}
+      def ul_options(_el, opts)
+        {bottom_padding: opts[:size]}
       end
 
       def render_ul(el, opts)
@@ -201,20 +200,20 @@ module Kramdown
         end
       end
 
-      def ol_options(el, opts)
-        {:bottom_padding => opts[:size]}
+      def ol_options(_el, opts)
+        {bottom_padding: opts[:size]}
       end
 
       def render_ol(el, opts)
         with_block_padding(el, opts) do
           el.children.each_with_index do |li, index|
-            @pdf.float { @pdf.formatted_text([text_hash("#{index+1}.", opts)]) }
+            @pdf.float { @pdf.formatted_text([text_hash("#{index + 1}.", opts)]) }
             @pdf.indent(mm2pt(6)) { convert(li, opts) }
           end
         end
       end
 
-      def li_options(el, opts)
+      def li_options(_el, _opts)
         {}
       end
 
@@ -222,7 +221,7 @@ module Kramdown
         inner(el, opts)
       end
 
-      def dl_options(el, opts)
+      def dl_options(_el, _opts)
         {}
       end
 
@@ -230,15 +229,15 @@ module Kramdown
         inner(el, opts)
       end
 
-      def dt_options(el, opts)
-        {:styles => (opts[:styles] || []) + [:bold], :bottom_padding => 0}
+      def dt_options(_el, opts)
+        {styles: (opts[:styles] || []) + [:bold], bottom_padding: 0}
       end
 
       def render_dt(el, opts)
         render_padded_and_formatted_text(el, opts)
       end
 
-      def dd_options(el, opts)
+      def dd_options(_el, _opts)
         {}
       end
 
@@ -246,20 +245,20 @@ module Kramdown
         @pdf.indent(mm2pt(10)) { inner(el, opts) }
       end
 
-      def math_options(el, opts)
+      def math_options(_el, _opts)
         {}
       end
 
       def render_math(el, opts)
         if el.options[:category] == :block
-          @pdf.formatted_text([{:text => el.value}], block_hash(opts))
+          @pdf.formatted_text([{text: el.value}], block_hash(opts))
         else
-          {:text => el.value}
+          {text: el.value}
         end
       end
 
-      def hr_options(el, opts)
-        {:top_padding => opts[:size], :bottom_padding => opts[:size]}
+      def hr_options(_el, opts)
+        {top_padding: opts[:size], bottom_padding: opts[:size]}
       end
 
       def render_hr(el, opts)
@@ -268,11 +267,8 @@ module Kramdown
         end
       end
 
-      def codeblock_options(el, opts)
-        {
-          :font => 'Courier', :color => '880000',
-          :bottom_padding => opts[:size]
-        }
+      def codeblock_options(_el, opts)
+        {font: 'Courier', color: '880000', bottom_padding: opts[:size]}
       end
 
       def render_codeblock(el, opts)
@@ -281,8 +277,8 @@ module Kramdown
         end
       end
 
-      def table_options(el, opts)
-        {:bottom_padding => opts[:size]}
+      def table_options(_el, opts)
+        {bottom_padding: opts[:size]}
       end
 
       def render_table(el, opts)
@@ -291,18 +287,19 @@ module Kramdown
           container.children.each do |row|
             data << []
             row.children.each do |cell|
-              if cell.children.any? {|child| child.options[:category] == :block}
+              if cell.children.any? {|child| child.options[:category] == :block }
                 line = el.options[:location]
-                warning("Can't render tables with cells containing block elements#{line ? " (line #{line})" : ''}")
+                warning("Can't render tables with cells containing block " \
+                        "elements#{line ? " (line #{line})" : ''}")
                 return
               end
               cell_data = inner(cell, opts)
-              data.last << cell_data.map {|c| c[:text]}.join('')
+              data.last << cell_data.map {|c| c[:text] }.join('')
             end
           end
         end
         with_block_padding(el, opts) do
-          @pdf.table(data, :width => @pdf.bounds.right) do
+          @pdf.table(data, width: @pdf.bounds.right) do
             el.options[:alignment].each_with_index do |alignment, index|
               columns(index).align = alignment unless alignment == :default
             end
@@ -310,9 +307,7 @@ module Kramdown
         end
       end
 
-
-
-      def text_options(el, opts)
+      def text_options(_el, _opts)
         {}
       end
 
@@ -320,20 +315,20 @@ module Kramdown
         text_hash(el.value.to_s, opts)
       end
 
-      def em_options(el, opts)
-        if opts[:styles] && opts[:styles].include?(:italic)
-          {:styles => opts[:styles].reject {|i| i == :italic}}
+      def em_options(_el, opts)
+        if opts[:styles]&.include?(:italic)
+          {styles: opts[:styles].reject {|i| i == :italic }}
         else
-          {:styles => (opts[:styles] || []) << :italic}
+          {styles: (opts[:styles] || []) << :italic}
         end
       end
 
-      def strong_options(el, opts)
-        {:styles => (opts[:styles] || []) + [:bold]}
+      def strong_options(_el, opts)
+        {styles: (opts[:styles] || []) + [:bold]}
       end
 
-      def a_options(el, opts)
-        hash = {:color => '000088'}
+      def a_options(el, _opts)
+        hash = {color: '000088'}
         if el.attr['href'].start_with?('#')
           hash[:anchor] = el.attr['href'].sub(/\A#/, '')
         else
@@ -345,26 +340,26 @@ module Kramdown
       def render_em(el, opts)
         inner(el, opts)
       end
-      alias_method :render_strong, :render_em
-      alias_method :render_a, :render_em
+      alias render_strong render_em
+      alias render_a render_em
 
-      def codespan_options(el, opts)
-        {:font => 'Courier', :color => '880000'}
+      def codespan_options(_el, _opts)
+        {font: 'Courier', color: '880000'}
       end
 
       def render_codespan(el, opts)
         text_hash(el.value, opts)
       end
 
-      def br_options(el, opts)
+      def br_options(_el, _opts)
         {}
       end
 
-      def render_br(el, opts)
+      def render_br(_el, opts)
         text_hash("\n", opts, false)
       end
 
-      def smart_quote_options(el, opts)
+      def smart_quote_options(_el, _opts)
         {}
       end
 
@@ -372,7 +367,7 @@ module Kramdown
         text_hash(smart_quote_entity(el).char, opts)
       end
 
-      def typographic_sym_options(el, opts)
+      def typographic_sym_options(_el, _opts)
         {}
       end
 
@@ -389,7 +384,7 @@ module Kramdown
         text_hash(str, opts)
       end
 
-      def entity_options(el, opts)
+      def entity_options(_el, _opts)
         {}
       end
 
@@ -397,7 +392,7 @@ module Kramdown
         text_hash(el.value.char, opts)
       end
 
-      def abbreviation_options(el, opts)
+      def abbreviation_options(_el, _opts)
         {}
       end
 
@@ -405,43 +400,40 @@ module Kramdown
         text_hash(el.value, opts)
       end
 
-      def img_options(el, opts)
+      def img_options(_el, _opts)
         {}
       end
 
-      def render_img(el, *args) #:nodoc:
+      def render_img(el, *) #:nodoc:
         line = el.options[:location]
         warning("Rendering span images is not supported for PDF converter#{line ? " (line #{line})" : ''}")
         nil
       end
 
-
-
-      def xml_comment_options(el, opts) #:nodoc:
+      def xml_comment_options(_el, _opts) #:nodoc:
         {}
       end
-      alias_method :xml_pi_options, :xml_comment_options
-      alias_method :comment_options, :xml_comment_options
-      alias_method :blank_options, :xml_comment_options
-      alias_method :footnote_options, :xml_comment_options
-      alias_method :raw_options, :xml_comment_options
-      alias_method :html_element_options, :xml_comment_options
+      alias xml_pi_options xml_comment_options
+      alias comment_options xml_comment_options
+      alias blank_options xml_comment_options
+      alias footnote_options xml_comment_options
+      alias raw_options xml_comment_options
+      alias html_element_options xml_comment_options
 
       def render_xml_comment(el, opts) #:nodoc:
         # noop
       end
-      alias_method :render_xml_pi, :render_xml_comment
-      alias_method :render_comment, :render_xml_comment
-      alias_method :render_blank, :render_xml_comment
+      alias render_xml_pi render_xml_comment
+      alias render_comment render_xml_comment
+      alias render_blank render_xml_comment
 
-      def render_footnote(el, *args) #:nodoc:
+      def render_footnote(el, *) #:nodoc:
         line = el.options[:location]
         warning("Rendering #{el.type} not supported for PDF converter#{line ? " (line #{line})" : ''}")
         nil
       end
-      alias_method :render_raw, :render_footnote
-      alias_method :render_html_element, :render_footnote
-
+      alias render_raw render_footnote
+      alias render_html_element render_footnote
 
       # ----------------------------
       # :section: Organizational methods
@@ -449,7 +441,6 @@ module Kramdown
       # These methods are used, for example, to up the needed Prawn::Document instance or to create
       # a PDF outline.
       # ----------------------------
-
 
       # This module gets mixed into the Prawn::Document instance.
       module PrawnDocumentExtension
@@ -460,15 +451,16 @@ module Kramdown
           def available_width
             return super unless @document.respond_to?(:converter) && @document.converter
 
-            @document.image_floats.each do |pn, x, y, w, h|
+            @document.image_floats.each do |pn, _x, y, w, h|
               next if @document.page_number != pn
               if @at[1] + @baseline_y <= y - @document.bounds.absolute_bottom &&
-                  (@at[1] + @baseline_y + @arranger.max_line_height + @leading >= y - h - @document.bounds.absolute_bottom)
+                  (@at[1] + @baseline_y + @arranger.max_line_height +
+                   @leading >= y - h - @document.bounds.absolute_bottom)
                 return @width - w
               end
             end
 
-            return super
+            super
           end
 
         end
@@ -485,12 +477,12 @@ module Kramdown
         # Override image embedding method for adding image positions to #image_floats.
         def embed_image(pdf_obj, info, options)
           # find where the image will be placed and how big it will be
-          w,h = info.calc_image_dimensions(options)
+          w, h = info.calc_image_dimensions(options)
 
           if options[:at]
-            x,y = map_to_absolute(options[:at])
+            x, y = map_to_absolute(options[:at])
           else
-            x,y = image_position(w,h,options)
+            x, y = image_position(w, h, options)
             move_text_position h
           end
 
@@ -502,27 +494,26 @@ module Kramdown
           # add a reference to the image object to the current page
           # resource list and give it a label
           label = "I#{next_image_id}"
-          state.page.xobjects.merge!(label => pdf_obj)
+          state.page.xobjects[label] = pdf_obj
 
           # add the image to the current page
           instruct = "\nq\n%.3f 0 0 %.3f %.3f %.3f cm\n/%s Do\nQ"
-          add_content instruct % [ w, h, x, y - h, label ]
+          add_content(sprintf(instruct, w, h, x, y - h, label))
         end
 
       end
 
-
       # Return a hash with options that are suitable for Prawn::Document.new.
       #
       # Used in #setup_document.
-      def document_options(root)
+      def document_options(_root)
         {
-          :page_size => 'A4', :page_layout => :portrait, :margin => mm2pt(20),
-          :info => {
-            :Creator => 'kramdown PDF converter',
-            :CreationDate => Time.now
+          page_size: 'A4', page_layout: :portrait, margin: mm2pt(20),
+          info: {
+            Creator: 'kramdown PDF converter',
+            CreationDate: Time.now,
           },
-          :compress => true, :optimize_objects => true
+          compress: true, optimize_objects: true
         }
       end
 
@@ -538,8 +529,6 @@ module Kramdown
         doc
       end
 
-      #
-      #
       # Used in #render_root.
       def finish_document(root)
         # no op
@@ -553,7 +542,7 @@ module Kramdown
           if el.type == :text
             el.value
           else
-            el.children.map {|c| text_of_header.call(c)}.join('')
+            el.children.map {|c| text_of_header.call(c) }.join('')
           end
         end
 
@@ -561,13 +550,13 @@ module Kramdown
           text = text_of_header.call(item.value)
           destination = @dests[item.attr[:id]]
           if !parent
-            @pdf.outline.page(:title => text, :destination => destination)
+            @pdf.outline.page(title: text, destination: destination)
           else
             @pdf.outline.add_subsection_to(parent) do
-              @pdf.outline.page(:title => text, :destination => destination)
+              @pdf.outline.page(title: text, destination: destination)
             end
           end
-          item.children.each {|c| add_section.call(c, text)}
+          item.children.each {|c| add_section.call(c, text) }
         end
 
         toc.children.each do |item|
@@ -575,19 +564,17 @@ module Kramdown
         end
       end
 
-
       # ----------------------------
       # :section: Helper methods
       # ----------------------------
 
-
       # Move the prawn document cursor down before and/or after yielding the given block.
       #
       # The :top_padding and :bottom_padding options are used for determinig the padding amount.
-      def with_block_padding(el, opts)
-        @pdf.move_down(opts[:top_padding]) if opts.has_key?(:top_padding)
+      def with_block_padding(_el, opts)
+        @pdf.move_down(opts[:top_padding]) if opts.key?(:top_padding)
         yield
-        @pdf.move_down(opts[:bottom_padding]) if opts.has_key?(:bottom_padding)
+        @pdf.move_down(opts[:bottom_padding]) if opts.key?(:bottom_padding)
       end
 
       # Render the children of the given element as formatted text and respect the top/bottom
@@ -602,10 +589,10 @@ module Kramdown
       # +true+, all whitespace is converted into spaces.
       def text_hash(text, opts, squeeze_whitespace = true)
         text = text.gsub(/\s+/, ' ') if squeeze_whitespace
-        hash = {:text => text}
+        hash = {text: text}
         [:styles, :size, :character_spacing, :font, :color, :link,
          :anchor, :draw_text_callback, :callback].each do |key|
-          hash[key] = opts[key] if opts.has_key?(key)
+          hash[key] = opts[key] if opts.key?(key)
         end
         hash
       end
@@ -616,7 +603,7 @@ module Kramdown
         hash = {}
         [:align, :valign, :mode, :final_gap, :leading, :fallback_fonts,
          :direction, :indent_paragraphs].each do |key|
-          hash[key] = opts[key] if opts.has_key?(key)
+          hash[key] = opts[key] if opts.key?(key)
         end
         hash
       end
