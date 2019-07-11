@@ -153,12 +153,8 @@ module Kramdown
         end
 
         img_dirs = (@options[:image_directories] || ['.']).dup
-        begin
-          img_path = File.join(img_dirs.shift, img.attr['src'])
-          image_obj, image_info = @pdf.build_image_object(open(img_path))
-        rescue StandardError
-          img_dirs.empty? ? raise : retry
-        end
+        image_file = open(img.attr['src']) rescue open_file(img_dirs, img.attr['src'])
+        image_obj, image_info = @pdf.build_image_object(image_file)
 
         options = {position: :center}
         if img.attr['height'] && img.attr['height'] =~ /px$/
@@ -608,6 +604,11 @@ module Kramdown
         hash
       end
 
+      def open_file(base_dirs, path)
+        img_path = File.join(base_dirs.shift, path)
+      rescue StandardError
+        img_dirs.empty? ? raise : retry
+      end
     end
 
   end
