@@ -605,7 +605,7 @@ module Kramdown
       end
 
       def open_file(base_dirs, path)
-        img_path = File.join(base_dirs.shift, path)
+        open(File.join(base_dirs.shift, path))
       rescue StandardError
         img_dirs.empty? ? raise : retry
       end
