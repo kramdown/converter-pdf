@@ -152,8 +152,8 @@ module Kramdown
           return nil
         end
 
-        img_dirs = (@options[:image_directories] || ['.']).dup
-        image_file = open(img.attr['src']) rescue open_file(img_dirs, img.attr['src'])
+        img_dirs = [".", ""] + @options.fetch(:image_directories, [])
+        image_file = open_file(img_dirs, img.attr["src"])
         image_obj, image_info = @pdf.build_image_object(image_file)
 
         options = {position: :center}
@@ -604,10 +604,13 @@ module Kramdown
         hash
       end
 
-      def open_file(base_dirs, path)
-        open(File.join(base_dirs.shift, path))
-      rescue StandardError
-        img_dirs.empty? ? raise : retry
+      def open_file(base_dirs, path_or_url)
+        open(path_or_url)
+      rescue
+        next_dir = base_dirs.shift
+        raise "#{path_or_url} cannot be opened" unless next_dir
+
+        open_file(base_dirs, File.join(next_dir, path_or_url))
       end
     end
 
