@@ -1,3 +1,8 @@
-class Kramdown::Converter::Pdf
-  VERSION = "1.0.3"
+class Kramdown
+  class Converter
+    class Pdf
+      VERSION = "1.0.3"
+    end
+  end
 end
+
