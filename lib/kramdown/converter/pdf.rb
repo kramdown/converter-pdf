@@ -103,7 +103,7 @@ module Kramdown
       # ----------------------------
 
       def root_options(_root, _opts)
-        {font: 'Times-Roman', size: 12, leading: 2}
+        {font: 'Helvetica', size: 12, leading: 2}
       end
 
       def render_root(root, opts)
