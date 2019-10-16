@@ -103,7 +103,31 @@ module Kramdown
       # ----------------------------
 
       def root_options(_root, _opts)
-        {font: 'Helvetica', size: 12, leading: 2}
+        update_font # it changes font if KD_FONT_NAME, KD_FONT_PATH present and font file exists
+        {font: document_font, size: 12, leading: 2}
+      end
+
+      def update_font
+        if custom_font_present?
+          @pdf.font_families.update(document_font => {
+            :normal => ENV['KD_FONT_PATH'])
+          })
+        end
+      end
+
+      def custom_font_present?
+        @custom_font_present ||= begin
+          # check: do KD_FONT_NAME and KD_FONT_PATH present
+          if ENV['KD_FONT_NAME'].nil? || ENV['KD_FONT_PATH'].nil?
+            false
+          else
+            File.file?(ENV['KD_FONT_PATH']) ? true : false # check: does font file exists
+          end
+        end
+      end
+
+      def document_font
+        @document_font ||= (custom_font_present? ? ENV['KD_FONT_NAME'] : 'Helvetica')
       end
 
       def render_root(root, opts)
@@ -117,7 +141,7 @@ module Kramdown
       def header_options(el, opts)
         size = opts[:size] * 1.15**(6 - el.options[:level])
         {
-          font: "Helvetica", styles: (opts[:styles] || []) + [:bold],
+          font: document_font, styles: (opts[:styles] || []) + [:bold],
           size: size, bottom_padding: opts[:size], top_padding: opts[:size]
         }
       end
