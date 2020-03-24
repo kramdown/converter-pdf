@@ -149,7 +149,6 @@ module Kramdown
         elsif img.attr['src'] !~ /\.jpe?g$|\.png$/
           warning("Cannot render images other than JPEG or PNG, " \
                   "got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
-          return nil
         end
 
         img_dirs = [".", ""] + @options.fetch(:image_directories, [])
