@@ -147,8 +147,9 @@ module Kramdown
           warning("Rendering an image without a source is not possible#{line ? " (line #{line})" : ''}")
           return nil
         elsif img.attr['src'] !~ /\.jpe?g$|\.png$/
-          warning("Cannot render images other than JPEG or PNG, " \
-                  "got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
+          warning("Requested to render images that are potentially not a JPEG or PNG. "\
+                  "The image might not be present if it's not in one of these formats. " \
+                  "Got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
         end
 
         img_dirs = [".", ""] + @options.fetch(:image_directories, [])
