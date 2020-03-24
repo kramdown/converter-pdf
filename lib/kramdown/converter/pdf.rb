@@ -152,7 +152,7 @@ module Kramdown
                   "Got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
         end
 
-        img_dirs = [".", ""] + @options.fetch(:image_directories, [])
+        img_dirs = @options.fetch(:image_directories, []) + ["."]
         image_file = open_file(img_dirs, img.attr["src"])
         image_obj, image_info = @pdf.build_image_object(image_file)
 
