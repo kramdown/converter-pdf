@@ -153,7 +153,14 @@ module Kramdown
         end
 
         img_dirs = @options.fetch(:image_directories, []) + ["."]
-        image_obj, image_info = open_file(img_dirs, img.attr["src"])
+        path_or_url = img.attr["src"]
+        begin
+          image_obj, image_info = @pdf.build_image_object(open(path_or_url))
+        rescue StandardError
+          raise if img_dirs.empty?
+          path_or_url = File.join(img_dirs.shift, img.attr["src"])
+          retry
+        end
 
         options = {position: :center}
         if img.attr['height'] && img.attr['height'] =~ /px$/
@@ -603,15 +610,6 @@ module Kramdown
         hash
       end
 
-      def open_file(base_dirs, path_or_url)
-        image_file = open(path_or_url)
-        @pdf.build_image_object(image_file)
-      rescue StandardError
-        next_dir = base_dirs.shift
-        raise "#{path_or_url} cannot be opened" unless next_dir
-
-        open_file(base_dirs, File.join(next_dir, path_or_url))
-      end
     end
 
   end
