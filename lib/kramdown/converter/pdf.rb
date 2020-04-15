@@ -147,18 +147,13 @@ module Kramdown
           warning("Rendering an image without a source is not possible#{line ? " (line #{line})" : ''}")
           return nil
         elsif img.attr['src'] !~ /\.jpe?g$|\.png$/
-          warning("Cannot render images other than JPEG or PNG, " \
-                  "got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
-          return nil
+          warning("Requested to render images that are potentially not a JPEG or PNG. "\
+                  "The image might not be present if it's not in one of these formats. " \
+                  "Got #{img.attr['src']}#{line ? " on line #{line}" : ''}")
         end
 
-        img_dirs = (@options[:image_directories] || ['.']).dup
-        begin
-          img_path = File.join(img_dirs.shift, img.attr['src'])
-          image_obj, image_info = @pdf.build_image_object(open(img_path))
-        rescue StandardError
-          img_dirs.empty? ? raise : retry
-        end
+        img_dirs = @options.fetch(:image_directories, []) + ["."]
+        image_obj, image_info = open_file(img_dirs, img.attr["src"])
 
         options = {position: :center}
         if img.attr['height'] && img.attr['height'] =~ /px$/
@@ -608,6 +603,15 @@ module Kramdown
         hash
       end
 
+      def open_file(base_dirs, path_or_url)
+        image_file = open(path_or_url)
+        @pdf.build_image_object(image_file)
+      rescue StandardError
+        next_dir = base_dirs.shift
+        raise "#{path_or_url} cannot be opened" unless next_dir
+
+        open_file(base_dirs, File.join(next_dir, path_or_url))
+      end
     end
 
   end
