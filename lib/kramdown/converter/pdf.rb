@@ -162,7 +162,15 @@ module Kramdown
           retry
         end
 
-        options = {position: :center}
+        options = {}
+        if img.attr['class'] =~ /\balign\-left\b/
+          options[:position] = :left
+        elsif img.attr['class'] =~ /\balign\-right\b/
+          options[:position] = :right
+        else
+          options[:position] = :center
+        end
+
         if img.attr['height'] && img.attr['height'] =~ /px$/
           options[:height] = img.attr['height'].to_i / (@options[:image_dpi] || 150.0) * 72
         elsif img.attr['width'] && img.attr['width'] =~ /px$/
