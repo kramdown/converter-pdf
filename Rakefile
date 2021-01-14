@@ -39,8 +39,6 @@ spec = Gem::Specification.new do |s|
   s.add_dependency 'prawn', '~> 2.0'
   s.add_dependency 'prawn-table', '~> 0.2.2'
 
-  s.has_rdoc = true
-
   s.author = 'Thomas Leitner'
   s.email = 't_leitner@gmx.at'
   s.homepage = "https://github.com/kramdown/converter-pdf"
