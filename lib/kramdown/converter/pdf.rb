@@ -11,6 +11,7 @@ require 'prawn'
 require 'prawn/table'
 require 'kramdown/converter/base'
 require 'kramdown/utils'
+require 'open-uri'
 
 module Kramdown
 
