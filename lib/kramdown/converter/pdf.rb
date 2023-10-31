@@ -43,7 +43,7 @@ module Kramdown
     #
     class Pdf < Base
 
-      VERSION = '1.0.5'
+      VERSION = '1.0.6'
 
       include Prawn::Measurements
 
